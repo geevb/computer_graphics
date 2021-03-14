@@ -3,3 +3,9 @@
 
 build/
 opencv/
+
+
+CMakeCache.txt
+CMakeFiles/
+DisplayImage
+cmake_install.cmake
