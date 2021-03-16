@@ -30,7 +30,7 @@ void bresenhamLine(int x, int y, int x2, int y2) {
         dx2 = 0;
     }
 
-    int numerator = longest >> 1 ;
+    int numerator = longest >> 1;
     for (int i = 0; i <= longest; i++) {
         image.at<cv::Vec3b>(y,x) = cv::Vec3b(255,255,255);
         numerator += shortest;
