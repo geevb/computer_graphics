@@ -66,11 +66,38 @@ void mouseHandler(int event, int x, int y, int flags, void* userdata) {
     }
 }
 
+int waitAndExecutePressedKeyAction() {
+    char pressedKey = (char) cv::waitKey(0);
+    std::cout << "Key pressed: " << pressedKey << std::endl;
+    if (pressedKey == 'c') {
+        return 1;
+    }
+
+    if (pressedKey == 'Q') { // left
+        
+    } 
+
+    if (pressedKey == 'R') { // up
+
+    } 
+
+    if (pressedKey == 'S') { // right
+
+    } 
+
+    if (pressedKey == 'T') { // down
+
+    } 
+
+    return waitAndExecutePressedKeyAction();
+}
+
 int main() {
     cv::namedWindow("My Window");
     cv::setMouseCallback("My Window", mouseHandler);
     cv::imshow("My Window", image);
-    cv::waitKey(0);
+    
+    waitAndExecutePressedKeyAction();
   
     return 0;
 }
