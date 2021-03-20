@@ -23,27 +23,11 @@ cv::Mat image(500, 500, CV_8UC3, cv::Scalar(0, 0, 0));
 
 std::vector<std::vector<double>> createIdentityMatrix(int size) { 
     std::vector<std::vector<double>> matrix(size, std::vector<double>(size, 0));
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         matrix[i][i] = 1;
     }
 
     return matrix; 
-}
-
-std::vector<std::vector<double>> setIdentity(std::vector<std::vector<double>> matriz) {
-    matriz[0][0] = 1;
-    matriz[0][1] = 0;
-    matriz[0][2] = 0;
-    
-    matriz[1][0] = 0;
-    matriz[1][1] = 1;
-    matriz[1][2] = 0;
-    
-    matriz[2][0] = 0;
-    matriz[2][1] = 0;
-    matriz[2][2] = 1;
-
-    return matriz;
 }
 
 void setTranslate(std::vector<std::vector<double>> &matriz, double a, double b) {
@@ -61,12 +45,11 @@ void setTranslate(std::vector<std::vector<double>> &matriz, double a, double b) 
 }
 
 vector2d multiplicaVetor(vector2d v, std::vector<std::vector<double>> matriz) {
-    vector2d saida = { 1, 1, 1 };
-    saida.x = v.x * matriz[0][0] + v.y * matriz[0][1] + v.w * matriz[0][2];
-    saida.y = v.x * matriz[1][0] + v.y * matriz[1][1] + v.w * matriz[1][2];
-    saida.w = v.x * matriz[2][0] + v.y * matriz[2][1] + v.w * matriz[2][2];
-
-    return saida;
+    return { 
+        x: v.x * matriz[0][0] + v.y * matriz[0][1] + v.w * matriz[0][2], 
+        y: v.x * matriz[1][0] + v.y * matriz[1][1] + v.w * matriz[1][2], 
+        w: v.x * matriz[2][0] + v.y * matriz[2][1] + v.w * matriz[2][2]
+    };
 }
 
 std::vector<coordinate> bresenhamLine(int x, int y, int x2, int y2) {
@@ -132,15 +115,11 @@ void mouseHandler(int event, int x, int y, int flags, void* userdata) {
 }
 
 void drawRectangle(rectangle rect) {
-    std::vector<coordinate> l1 = bresenhamLine(rect.p1.x, rect.p1.y, rect.p2.x, rect.p2.y);
-    paintCoordinates(image, l1);
-    std::vector<coordinate> l2 = bresenhamLine(rect.p2.x, rect.p2.y, rect.p3.x, rect.p3.y);
-    paintCoordinates(image, l2);
-    std::vector<coordinate> l3 = bresenhamLine(rect.p3.x, rect.p3.y, rect.p4.x, rect.p4.y);
-    paintCoordinates(image, l3);
-    std::vector<coordinate> l4 = bresenhamLine(rect.p4.x, rect.p4.y, rect.p1.x, rect.p1.y);
-    paintCoordinates(image, l4);
-    
+    image = (500, 500, CV_8UC3, cv::Scalar(0, 0, 0)); // Clear image i.e. sets to black again.
+    paintCoordinates(image, bresenhamLine(rect.p1.x, rect.p1.y, rect.p2.x, rect.p2.y));
+    paintCoordinates(image, bresenhamLine(rect.p2.x, rect.p2.y, rect.p3.x, rect.p3.y));
+    paintCoordinates(image, bresenhamLine(rect.p3.x, rect.p3.y, rect.p4.x, rect.p4.y));
+    paintCoordinates(image, bresenhamLine(rect.p4.x, rect.p4.y, rect.p1.x, rect.p1.y));
     cv::imshow("My Window", image);
 }
 
@@ -174,7 +153,6 @@ int waitAndExecutePressedKeyAction() {
     rect.p4 = multiplicaVetor(rect.p4, identity);
 
     drawRectangle(rect);
-    cv::imshow("My Window", image);
 
     return waitAndExecutePressedKeyAction();
 }
