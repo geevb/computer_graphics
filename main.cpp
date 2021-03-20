@@ -16,9 +16,19 @@ struct rectangle {
     vector2d p1, p2, p3, p4;
 };
 
+rectangle rect = {};
 std::vector<coordinate> coordinates = {};
 
 cv::Mat image(500, 500, CV_8UC3, cv::Scalar(0, 0, 0));
+
+std::vector<std::vector<double>> createIdentityMatrix(int size) { 
+    std::vector<std::vector<double>> matrix(size, std::vector<double>(size, 0));
+    for(int i = 0; i < size; i++) {
+        matrix[i][i] = 1;
+    }
+
+    return matrix; 
+}
 
 std::vector<std::vector<double>> setIdentity(std::vector<std::vector<double>> matriz) {
     matriz[0][0] = 1;
@@ -36,7 +46,7 @@ std::vector<std::vector<double>> setIdentity(std::vector<std::vector<double>> ma
     return matriz;
 }
 
-std::vector<std::vector<double>> setTranslate(std::vector<std::vector<double>> matriz, double a,double b) {
+void setTranslate(std::vector<std::vector<double>> &matriz, double a, double b) {
     matriz[0][0] = 1;
     matriz[0][1] = 0;
     matriz[0][2] = a;
@@ -48,8 +58,6 @@ std::vector<std::vector<double>> setTranslate(std::vector<std::vector<double>> m
     matriz[2][0] = 0;
     matriz[2][1] = 0;
     matriz[2][2] = 1;
-
-    return matriz;
 }
 
 vector2d multiplicaVetor(vector2d v, std::vector<std::vector<double>> matriz) {
@@ -123,32 +131,6 @@ void mouseHandler(int event, int x, int y, int flags, void* userdata) {
     }
 }
 
-int waitAndExecutePressedKeyAction() {
-    char pressedKey = (char) cv::waitKey(0);
-    std::cout << "Key pressed: " << pressedKey << std::endl;
-    if (pressedKey == 'c') {
-        return 1;
-    }
-
-    if (pressedKey == 'Q') { // left
-        
-    }
-
-    if (pressedKey == 'R') { // up
-
-    }
-
-    if (pressedKey == 'S') { // right
-
-    }
-
-    if (pressedKey == 'T') { // down
-
-    }
-
-    return waitAndExecutePressedKeyAction();
-}
-
 void drawRectangle(rectangle rect) {
     std::vector<coordinate> l1 = bresenhamLine(rect.p1.x, rect.p1.y, rect.p2.x, rect.p2.y);
     paintCoordinates(image, l1);
@@ -162,9 +144,43 @@ void drawRectangle(rectangle rect) {
     cv::imshow("My Window", image);
 }
 
+int waitAndExecutePressedKeyAction() {
+    char pressedKey = (char) cv::waitKey(0);
+    std::cout << "Key pressed: " << pressedKey << std::endl;
+    std::vector<std::vector<double>> identity = createIdentityMatrix(3);
+    if (pressedKey == 'c') {
+        return 1;
+    }
+
+    if (pressedKey == 'Q') { // left
+        setTranslate(identity, -10, 0);
+    }
+
+    if (pressedKey == 'R') { // up
+        setTranslate(identity, 0, -10);
+    }
+
+    if (pressedKey == 'S') { // right
+        setTranslate(identity, 10, 0);
+    }
+
+    if (pressedKey == 'T') { // down
+        setTranslate(identity, 0, 10);
+    }
+
+    rect.p1 = multiplicaVetor(rect.p1, identity);
+    rect.p2 = multiplicaVetor(rect.p2, identity);
+    rect.p3 = multiplicaVetor(rect.p3, identity);
+    rect.p4 = multiplicaVetor(rect.p4, identity);
+
+    drawRectangle(rect);
+    cv::imshow("My Window", image);
+
+    return waitAndExecutePressedKeyAction();
+}
 
 int main() {
-    rectangle rect = {
+    rect = {
         {100, 100, 1},
         {200, 100, 1},
         {200, 200, 1},
