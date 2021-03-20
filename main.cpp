@@ -5,14 +5,63 @@
 #include <vector>
 
 struct coordinate {
-    int x;
-    int y;
+    int x, y;
 };
+
+struct vector2d {
+    double x, y, w;
+};
+
+struct rectangle {
+    vector2d p1, p2, p3, p4;
+};
+
 std::vector<coordinate> coordinates = {};
 
 cv::Mat image(500, 500, CV_8UC3, cv::Scalar(0, 0, 0));
 
-void bresenhamLine(int x, int y, int x2, int y2) {
+std::vector<std::vector<double>> setIdentity(std::vector<std::vector<double>> matriz) {
+    matriz[0][0] = 1;
+    matriz[0][1] = 0;
+    matriz[0][2] = 0;
+    
+    matriz[1][0] = 0;
+    matriz[1][1] = 1;
+    matriz[1][2] = 0;
+    
+    matriz[2][0] = 0;
+    matriz[2][1] = 0;
+    matriz[2][2] = 1;
+
+    return matriz;
+}
+
+std::vector<std::vector<double>> setTranslate(std::vector<std::vector<double>> matriz, double a,double b) {
+    matriz[0][0] = 1;
+    matriz[0][1] = 0;
+    matriz[0][2] = a;
+    
+    matriz[1][0] = 0;
+    matriz[1][1] = 1;
+    matriz[1][2] = b;
+    
+    matriz[2][0] = 0;
+    matriz[2][1] = 0;
+    matriz[2][2] = 1;
+
+    return matriz;
+}
+
+vector2d multiplicaVetor(vector2d v, std::vector<std::vector<double>> matriz) {
+    vector2d saida = { 1, 1, 1 };
+    saida.x = v.x * matriz[0][0] + v.y * matriz[0][1] + v.w * matriz[0][2];
+    saida.y = v.x * matriz[1][0] + v.y * matriz[1][1] + v.w * matriz[1][2];
+    saida.w = v.x * matriz[2][0] + v.y * matriz[2][1] + v.w * matriz[2][2];
+
+    return saida;
+}
+
+std::vector<coordinate> bresenhamLine(int x, int y, int x2, int y2) {
     int w = x2 - x;
     int h = y2 - y;
     int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
@@ -30,9 +79,10 @@ void bresenhamLine(int x, int y, int x2, int y2) {
         dx2 = 0;
     }
 
+    std::vector<coordinate> coordinates = {};
     int numerator = longest >> 1;
     for (int i = 0; i <= longest; i++) {
-        image.at<cv::Vec3b>(y,x) = cv::Vec3b(255,255,255);
+        coordinates.push_back({ x, y });
         numerator += shortest;
         if (numerator >= longest) {
             numerator -= longest;
@@ -44,7 +94,13 @@ void bresenhamLine(int x, int y, int x2, int y2) {
         }
     }
 
-    cv::imshow("My Window", image);
+    return coordinates;
+}
+
+void paintCoordinates(cv::Mat &image, std::vector<coordinate> coordinates, int r = 255, int g = 255, int b = 255) {
+    for (coordinate c : coordinates) {
+        image.at<cv::Vec3b>(c.y, c.x) = cv::Vec3b(r,g,b);
+    }
 }
 
 void mouseHandler(int event, int x, int y, int flags, void* userdata) {
@@ -61,7 +117,8 @@ void mouseHandler(int event, int x, int y, int flags, void* userdata) {
             std::cout << "x: " << (coordinates[numCoordinates -2].x) << " y: " << coordinates[numCoordinates -2].y << std::endl;
             cv::Point p1(coordinates[numCoordinates -1].x, coordinates[numCoordinates -1].y);
             cv::Point p2(coordinates[numCoordinates -2].x, coordinates[numCoordinates -2].y);
-            bresenhamLine(p1.x, p1.y, p2.x, p2.y);
+            paintCoordinates(image, bresenhamLine(p1.x, p1.y, p2.x, p2.y));
+            cv::imshow("My Window", image);
         }
     }
 }
@@ -75,28 +132,50 @@ int waitAndExecutePressedKeyAction() {
 
     if (pressedKey == 'Q') { // left
         
-    } 
+    }
 
     if (pressedKey == 'R') { // up
 
-    } 
+    }
 
     if (pressedKey == 'S') { // right
 
-    } 
+    }
 
     if (pressedKey == 'T') { // down
 
-    } 
+    }
 
     return waitAndExecutePressedKeyAction();
 }
 
+void drawRectangle(rectangle rect) {
+    std::vector<coordinate> l1 = bresenhamLine(rect.p1.x, rect.p1.y, rect.p2.x, rect.p2.y);
+    paintCoordinates(image, l1);
+    std::vector<coordinate> l2 = bresenhamLine(rect.p2.x, rect.p2.y, rect.p3.x, rect.p3.y);
+    paintCoordinates(image, l2);
+    std::vector<coordinate> l3 = bresenhamLine(rect.p3.x, rect.p3.y, rect.p4.x, rect.p4.y);
+    paintCoordinates(image, l3);
+    std::vector<coordinate> l4 = bresenhamLine(rect.p4.x, rect.p4.y, rect.p1.x, rect.p1.y);
+    paintCoordinates(image, l4);
+    
+    cv::imshow("My Window", image);
+}
+
+
 int main() {
+    rectangle rect = {
+        {100, 100, 1},
+        {200, 100, 1},
+        {200, 200, 1},
+        {100, 200, 1}
+    };
+
     cv::namedWindow("My Window");
     cv::setMouseCallback("My Window", mouseHandler);
-    cv::imshow("My Window", image);
-    
+
+    drawRectangle(rect);
+
     waitAndExecutePressedKeyAction();
   
     return 0;
