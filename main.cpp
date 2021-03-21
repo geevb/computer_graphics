@@ -33,20 +33,6 @@ std::vector<std::vector<double>> createIdentityMatrix(int size) {
     return matrix; 
 }
 
-void setTranslate(std::vector<std::vector<double>> &matriz, double a, double b) {
-    matriz[0][0] = 1;
-    matriz[0][1] = 0;
-    matriz[0][2] = a;
-    
-    matriz[1][0] = 0;
-    matriz[1][1] = 1;
-    matriz[1][2] = b;
-    
-    matriz[2][0] = 0;
-    matriz[2][1] = 0;
-    matriz[2][2] = 1;
-}
-
 vector2d multiplicaVetor(vector2d v, std::vector<std::vector<double>> matriz) {
     return { 
         x: v.x * matriz[0][0] + v.y * matriz[0][1] + v.w * matriz[0][2], 
@@ -89,6 +75,20 @@ std::vector<coordinate> bresenhamLine(int x, int y, int x2, int y2) {
     }
 
     return coordinates;
+}
+
+void setTranslate(std::vector<std::vector<double>> &matriz, double a, double b) {
+    matriz[0][0] = 1;
+    matriz[0][1] = 0;
+    matriz[0][2] = a;
+    
+    matriz[1][0] = 0;
+    matriz[1][1] = 1;
+    matriz[1][2] = b;
+    
+    matriz[2][0] = 0;
+    matriz[2][1] = 0;
+    matriz[2][2] = 1;
 }
 
 void rotateRectangle(std::vector<std::vector<double>> &matriz, float degree, coordinate pivot) {
@@ -166,7 +166,7 @@ int waitAndExecutePressedKeyAction() {
         setTranslate(identity, 0, 10);
     }
 
-    if (pressedKey == 'r') {
+    if (pressedKey == 'e') {
         rotateRectangle(identity, 15, lastClickedCoordinate);
     }
 
@@ -186,10 +186,10 @@ int waitAndExecutePressedKeyAction() {
 
 int main() {
     rect = {
-        {100, 100, 1},
-        {200, 100, 1},
-        {200, 200, 1},
-        {100, 200, 1}
+        { 200, 200, 1 },
+        { 300, 200, 1 },
+        { 300, 300, 1 },
+        { 200, 300, 1 }
     };
 
     cv::namedWindow("My Window");
