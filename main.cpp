@@ -4,6 +4,8 @@
 #include <opencv2/imgproc.hpp>
 #include <vector>
 
+const double pi = 3.14159265359;
+
 struct coordinate {
     int x, y;
 };
@@ -18,6 +20,7 @@ struct rectangle {
 
 rectangle rect = {};
 std::vector<coordinate> coordinates = {};
+coordinate lastClickedCoordinate = { x: 200, y: 200 }; // Default value if no point is clicked in the images
 
 cv::Mat image(500, 500, CV_8UC3, cv::Scalar(0, 0, 0));
 
@@ -88,6 +91,21 @@ std::vector<coordinate> bresenhamLine(int x, int y, int x2, int y2) {
     return coordinates;
 }
 
+void rotateRectangle(std::vector<std::vector<double>> &matriz, float degree, coordinate pivot) {
+    double rad = (degree * (pi / 180));
+    matriz[0][0] = cos(rad);
+    matriz[0][1] = -sin(rad);
+    matriz[0][2] = (pivot.x * (1 - cos(rad)) + pivot.y * sin(rad));
+    
+    matriz[1][0] = sin(rad);
+    matriz[1][1] = cos(rad);
+    matriz[1][2] = (pivot.y * (1 - cos(rad)) - pivot.x * sin(rad));
+    
+    matriz[2][0] = 0;
+    matriz[2][1] = 0;
+    matriz[2][2] = 1;
+}
+
 void paintCoordinates(cv::Mat &image, std::vector<coordinate> coordinates, int r = 255, int g = 255, int b = 255) {
     for (coordinate c : coordinates) {
         image.at<cv::Vec3b>(c.y, c.x) = cv::Vec3b(r,g,b);
@@ -98,6 +116,7 @@ void mouseHandler(int event, int x, int y, int flags, void* userdata) {
     if (event == cv::EVENT_LBUTTONDOWN) {
         std::cout << "Clicked (" << x << ", " << y << ")" << std::endl;
 
+        lastClickedCoordinate = { x, y };
         coordinate coord = { x, y };
         coordinates.push_back(coord);
 
@@ -145,6 +164,14 @@ int waitAndExecutePressedKeyAction() {
 
     if (pressedKey == 'T') { // down
         setTranslate(identity, 0, 10);
+    }
+
+    if (pressedKey == 'r') {
+        rotateRectangle(identity, 15, lastClickedCoordinate);
+    }
+
+    if (pressedKey == 'q') {
+        rotateRectangle(identity, -15, lastClickedCoordinate);
     }
 
     rect.p1 = multiplicaVetor(rect.p1, identity);
