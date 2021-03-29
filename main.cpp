@@ -102,7 +102,7 @@ struct Matrix3D {
 		matrix[3][3] = 1;
 	}
 	
-	void setTranslate(double a,double b,double c) {
+	void setTranslate(double a, double b, double c) {
 		matrix[0][0] = 1;
 		matrix[0][1] = 0;
 		matrix[0][2] = 0;
@@ -149,6 +149,58 @@ struct Matrix3D {
 		matrix[3][2] = 0;
 		matrix[3][3] = 1;
 	}
+
+    void setRotateY(double degree) {
+        double rad = (degree * (pi / 180));
+        double sin = std::sin(rad);
+        double cos = std::cos(rad);
+
+        matrix[0][0] = cos;
+		matrix[0][1] = 0;
+		matrix[0][2] = -sin;
+		matrix[0][3] = 0;
+		
+		matrix[1][0] = 0;
+		matrix[1][1] = 1;
+		matrix[1][2] = 0;
+		matrix[1][3] = 0;
+		
+		matrix[2][0] = sin;
+		matrix[2][1] = 0;
+		matrix[2][2] = cos;
+		matrix[2][3] = 0;
+		
+		matrix[3][0] = 0;
+		matrix[3][1] = 0;
+		matrix[3][2] = 0;
+		matrix[3][3] = 1;
+    }
+
+    void setRotateZ(double degree) {
+        double rad = (degree * (pi / 180));
+        double sin = std::sin(rad);
+        double cos = std::cos(rad);
+
+        matrix[0][0] = cos;
+		matrix[0][1] = -sin;
+		matrix[0][2] = 0;
+		matrix[0][3] = 0;
+		
+		matrix[1][0] = sin;
+		matrix[1][1] = cos;
+		matrix[1][2] = 0;
+		matrix[1][3] = 0;
+		
+		matrix[2][0] = 0;
+		matrix[2][1] = 0;
+		matrix[2][2] = 1;
+		matrix[2][3] = 0;
+		
+		matrix[3][0] = 0;
+		matrix[3][1] = 0;
+		matrix[3][2] = 0;
+		matrix[3][3] = 1;
+    }
 	
     vector3d multiplyVector3d(vector3d v) {
         return {
@@ -296,6 +348,22 @@ int waitAndExecutePressedKeyAction() {
     if (pressedKey == 'q') {
         // rotateRectangle(identity, -15, lastClickedCoordinate);
         mat3d.setRotateX(-5);
+    }
+
+    if (pressedKey == 'a') {
+        mat3d.setRotateY(5);
+    }
+
+    if (pressedKey == 'd') {
+        mat3d.setRotateY(-5);
+    }
+
+    if (pressedKey == 'z') {
+        mat3d.setRotateZ(5);
+    }
+
+    if (pressedKey == 'v') {
+        mat3d.setRotateZ(-5);
     }
     
     // rect.p1 = multiplyVector2d(rect.p1, identity);
