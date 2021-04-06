@@ -85,6 +85,7 @@ std::vector<std::vector<double>> createIdentityMatrix(int size) {
 
 struct Matrix3D {
 	std::vector<std::vector<double>> matrix = createIdentityMatrix(4);
+
 	void setIdentity() {
 		matrix[0][0] = 1;
 		matrix[0][1] = 0;
@@ -259,6 +260,7 @@ struct Matrix3D {
         return output;
     };
 };
+
 struct GeometricShape3D {
     std::vector<vector3d> points;
     void draw(Matrix3D m) {
@@ -354,62 +356,64 @@ void waitAndExecutePressedKeyAction() {
 class objLoader {
     struct trigFace { int v1, v2, v3; };
     struct rectFace { int v1, v2, v3, v4; };
-    public:
-        std::vector<vector3d> vertexes;
-        std::vector<trigFace> trigFaces;
-        std::vector<rectFace> rectFaces;
-        void readfile(std::string filename) {
-            std::ifstream file(filename);
-            if (file.is_open()) {
-                std::string line;            
-                while (std::getline(file, line)) {
-                    if (
-                        line.empty()
-                        || (line.at(0) != 'v' && line.at(0) != 'f')
-                    ) {
-                        continue;
-                    }
-
-                    std::istringstream iss(line);
-                    std::string lineId;
-                    iss >> lineId;
-                    if (lineId == "v") {
-                        vector3d v;
-                        iss >> v.x >> v.y >> v.z;
-                        v.x += IMAGE_WIDTH / 2;
-                        v.y += IMAGE_HEIGHT / 2; // Traz pro centro do imagem
-                        v.z += IMAGE_WIDTH / 2;
-                        v.w = 1;
-                        vertexes.push_back(v);
-                        continue;
-                    }
-
-                    if (lineId == "f") {
-                        std::vector<int> vertexPropsVec;
-                        std::string vertexProps;
-                        while (iss >> vertexProps) {
-                            // use first value in f row, i.e. xx/*ignored* & [0], because that's the vertex index, the others are textures indexes
-                            int vertexIndex = std::stoi(split(vertexProps, '/')[0]) -1; // -1 because .obj uses indexes starting from 1 instead of 0
-                            vertexPropsVec.push_back(vertexIndex);
-                        }
-
-                        GeometricShape3D s;
-                        for (auto& vertexPropIndex : vertexPropsVec) {
-                            s.points.push_back(vertexes[vertexPropIndex]);
-                        }
-                        tankShapes.push_back(s);
-                    }
+    std::vector<vector3d> vertexes;
+    std::vector<trigFace> trigFaces;
+    std::vector<rectFace> rectFaces;
+public:
+    void readfile(std::string filename) {
+        std::ifstream file(filename);
+        if (file.is_open()) {
+            std::string line;            
+            while (std::getline(file, line)) {
+                if (
+                    line.empty()
+                    || (line.at(0) != 'v' && line.at(0) != 'f')
+                ) {
+                    continue;
                 }
-                file.close();
+
+                std::istringstream iss(line);
+                std::string lineId;
+                iss >> lineId;
+                if (lineId == "v") {
+                    vector3d v;
+                    iss >> v.x >> v.y >> v.z;
+                    v.x += IMAGE_WIDTH / 2;
+                    v.y += IMAGE_HEIGHT / 2; // Traz pro centro do imagem
+                    v.z += IMAGE_WIDTH / 2;
+                    v.w = 1;
+                    vertexes.push_back(v);
+                    continue;
+                }
+
+                if (lineId == "f") {
+                    std::vector<int> vertexPropsVec;
+                    std::string vertexProps;
+                    while (iss >> vertexProps) {
+                        // use first value in f row, i.e. xx/*ignored* & [0], because that's the vertex index, the others are textures indexes
+                        int vertexIndex = std::stoi(split(vertexProps, '/')[0]) -1; // -1 because .obj uses indexes starting from 1 instead of 0
+                        vertexPropsVec.push_back(vertexIndex);
+                    }
+
+                    GeometricShape3D s;
+                    for (auto const vertexPropIndex : vertexPropsVec) {
+                        s.points.push_back(vertexes[vertexPropIndex]);
+                    }
+                    tankShapes.push_back(s);
+                }
             }
-        };
+            file.close();
+        }
+    };
 };
 
-int main() {
+int main(int argc, char* argv[]) {
     cv::namedWindow(WINDOW_NAME);
 
+    std::string filename = (argc > 1) ? argv[1] : "tank.obj";
+
     objLoader obj;
-    obj.readfile("tank.obj");
+    obj.readfile(filename);
 
     Matrix3D m;
     drawTank(m);
